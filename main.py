@@ -148,8 +148,7 @@ def askQuestion():
 @app.route('/', methods=['GET'])
 def home():
     return "<h1>Gemini RAG API is Online </h1>"
-
+    
 if __name__ == '__main__':
-    # Use the PORT environment variable if it's available (needed for Render)
-    port = int(os.environ.get("PORT", 5001))
+    port = int(os.environ.get("PORT", 10000)) 
     app.run(host='0.0.0.0', port=port)

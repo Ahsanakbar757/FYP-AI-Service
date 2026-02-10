@@ -19,8 +19,6 @@ from langchain_community.document_loaders import PyPDFLoader
 load_dotenv()
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-if not GOOGLE_API_KEY:
-    print("WARNING: GOOGLE_API_KEY is not set")
 
 # -------------------------------------------------------------------
 # Flask App
@@ -32,35 +30,26 @@ def health():
     return {"status": "ok", "service": "Gemini RAG API"}
 
 # -------------------------------------------------------------------
-# Globals
+# Globals & Config
 # -------------------------------------------------------------------
 session_memories = {}
 DB_DIRECTORY = "./chroma_db"
+MODEL_NAME = "gemini-1.5-flash"
 
-MODEL_NAME = "gemini-1.5-flash"  # SAFE & STABLE
-
-# -------------------------------------------------------------------
-# LLM & Embeddings
-# -------------------------------------------------------------------
 def getGeminiLLM():
     return ChatGoogleGenerativeAI(
-        model="gemini-1.5-flash",
-        google_api_key=os.getenv("GOOGLE_API_KEY"),
+        model=MODEL_NAME,
+        google_api_key=GOOGLE_API_KEY,
         temperature=0.3,
         max_output_tokens=8192
     )
 
-
 def getEmbeddings():
     return GoogleGenerativeAIEmbeddings(
-        model="text-embedding-004",  
+        model="text-embedding-004",
         google_api_key=GOOGLE_API_KEY
     )
 
-
-# -------------------------------------------------------------------
-# Utilities
-# -------------------------------------------------------------------
 def preprocessDocs(docs):
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=2000,
@@ -81,12 +70,10 @@ def update_course():
             return jsonify({"error": "courseId is required"}), 400
 
         all_docs = []
-
         for path in pdf_paths:
             path = path.strip()
             if not path or not os.path.exists(path):
                 continue
-
             loader = PyPDFLoader(path)
             all_docs.extend(loader.load())
 
@@ -101,19 +88,17 @@ def update_course():
             persist_directory=DB_DIRECTORY,
             collection_name=f"course_{course_id}"
         )
-        vectordb.persist()
-
+        
         session_memories.pop(course_id, None)
 
-       return jsonify({
-    "status": "success", 
-    "message": f"Course {course_id} indexed successfully with {len(chunks)} chunks."
-})
+        return jsonify({
+            "status": "success",
+            "message": f"Course {course_id} indexed successfully with {len(chunks)} chunks."
+        })
 
     except Exception as e:
         print("Update error:", e)
         return jsonify({"error": str(e)}), 500
-
 
 @app.route("/ask", methods=["POST"])
 def ask():
@@ -148,16 +133,13 @@ def ask():
         result = chain.invoke({"question": question})
         return jsonify({
             "status": "success",
-            "message": f"Course {course_id} indexed successfully with {len(chunks)} chunks."
+            "answer": result["answer"]
         })
 
     except Exception as e:
-        print("Update error:", e)
+        print("Ask error:", e)
         return jsonify({"error": str(e)}), 500
 
-
-# -------------------------------------------------------------------
-# Local Run (ignored by Gunicorn)
-# -------------------------------------------------------------------
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)

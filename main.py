@@ -2,8 +2,10 @@ import os
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_google_genai import (
+    ChatGoogleGenerativeAI,
+    GoogleGenerativeAIEmbeddings
+)
 
 from langchain_community.vectorstores import Chroma
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -42,7 +44,7 @@ MODEL_NAME = "gemini-1.5-flash"  # SAFE & STABLE
 # -------------------------------------------------------------------
 def getGeminiLLM():
     return ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash",
+        model="gemini-1.5-flash",
         google_api_key=os.getenv("GOOGLE_API_KEY"),
         temperature=0.3,
         max_output_tokens=8192
@@ -50,10 +52,10 @@ def getGeminiLLM():
 
 
 def getEmbeddings():
-    return HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
+    return GoogleGenerativeAIEmbeddings(
+        model="text-embedding-004",  
+        google_api_key=GOOGLE_API_KEY
     )
-
 
 
 # -------------------------------------------------------------------
@@ -103,10 +105,10 @@ def update_course():
 
         session_memories.pop(course_id, None)
 
-        return jsonify({
-            "status": "success",
-            "chunks_indexed": len(chunks)
-        })
+       return jsonify({
+    "status": "success", 
+    "message": f"Course {course_id} indexed successfully with {len(chunks)} chunks."
+})
 
     except Exception as e:
         print("Update error:", e)

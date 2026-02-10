@@ -46,7 +46,7 @@ def getGeminiLLM():
 
 def getEmbeddings():
     return GoogleGenerativeAIEmbeddings(
-        model="text-embedding-004",
+        model="models/embedding-001",
         google_api_key=GOOGLE_API_KEY
     )
 

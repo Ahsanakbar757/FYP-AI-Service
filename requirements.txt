@@ -88,9 +88,9 @@ mpmath==1.3.0
 multidict==6.7.0
 mypy_extensions==1.1.0
 namex==0.1.0
-networkx==3.4
+networkx>=3.0
 nltk==3.9.2
-numpy==2.0.0
+numpy>=1.24.0
 oauthlib==3.3.1
 onnxruntime==1.23.2
 openai==2.6.0
@@ -139,8 +139,8 @@ rich==14.2.0
 rpds-py==0.27.1
 rsa==4.9.1
 safetensors==0.6.2
-scikit-learn==1.4.0
-scipy==1.16.2
+scikit-learn>=1.4.0
+scipy>=1.10.0
 sentence-transformers==5.2.0
 setuptools==80.9.0
 shellingham==1.5.4

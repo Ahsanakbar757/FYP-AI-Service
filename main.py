@@ -146,10 +146,13 @@ def ask():
         )
 
         result = chain.invoke({"question": question})
-        return jsonify({"answer": result["answer"]})
+        return jsonify({
+            "status": "success",
+            "message": f"Course {course_id} indexed successfully with {len(chunks)} chunks."
+        })
 
     except Exception as e:
-        print("Ask error:", e)
+        print("Update error:", e)
         return jsonify({"error": str(e)}), 500
 
 
